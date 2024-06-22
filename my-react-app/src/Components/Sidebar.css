@@ -1,0 +1,191 @@
+.sidebar {
+  height: 590px;
+  width: 250px; 
+  background-color: #f8f9fa; /* Light background color */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+  border-radius: 10px; /* Rounded corners */
+  overflow-y: auto; /* Add scrollbar when content overflows */
+  padding-bottom: 0px; /* Add padding at the bottom */
+}
+
+/* Sidebar header */
+.sidebar-header {
+  padding: 10px;
+  border-bottom: 1px solid #dee2e6; /* Border for separation */
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #343a40; /* Dark text color */
+}
+
+/* Sector list */
+.sector-list {
+  padding: 20px;
+}
+
+/* Individual sector */
+.sector {
+  position: relative; /* Set position to relative */
+  margin-bottom: 10px;
+  padding: 12px;
+  border: 1px solid #ced4da; /* Light border color */
+  width: 215px;
+  background-color: #fff; /* White background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+  transition: transform 0.3s ease; /* Smooth transition */
+  margin-left: -15px; /* Adjust for padding in the sector-list */
+  margin-right: -15px; /* Adjust for padding in the sector-list */
+}
+
+/* Countdown text */
+.countdown {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #6c757d; /* Medium dark text color */
+}
+
+/* Toggle button */
+.toggle-button {
+  position: absolute; /* Set position to absolute */
+  top: 30px; /* Adjust top position as needed */
+  left: 40px; 
+}
+
+.sector.active {
+  border: 1px solid #040510;
+  width: 215px;
+}
+
+/* Sector name */
+.sector span {
+  font-size: 18px;
+  font-weight: bold;
+  color: #343a40; /* Dark text color */
+  flex: 1; /* Allow sector name to take up remaining space */
+  margin-right: 10px; /* Add spacing between sector name and toggle button */
+}
+
+/* Button container */
+.button-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Evenly distribute items */
+  width: 100%;
+}
+
+/* Button group */
+.button-group {
+  display: flex;
+  align-items: center; /* Align buttons vertically */
+}
+
+/* Toggle button */
+.toggle-button {
+  display: flex; /* Use flex to align items */
+  align-items: left;
+  margin-left: 30px; /* Align items vertically */
+}
+
+/* Info, Edit, Delete buttons */
+.info-button,
+.edit-button,
+.delete-button {
+  margin-left: 10px; /* Add spacing between buttons */
+}
+
+/* Additional info */
+.additional-info {
+  margin-top: 10px; /* Increase top margin */
+}
+
+/* Rounded switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 18px;
+  margin-bottom: 10px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 12px;
+  left: 2px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #007bff;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(15px);
+  -ms-transform: translateX(15px);
+  transform: translateX(15px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.navbar-footer {
+  padding: 10px;
+}
+
+/* Additional info button and delete button container */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.info-button, .delete-button, .edit-button {
+  width: 30%; /* Slightly less than half to add some space between the buttons */
+  padding: 5px;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.additional-info ul {
+  padding-left: 20px;
+}
+
+.additional-info li {
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #6c757d; /* Medium dark text color */
+}
