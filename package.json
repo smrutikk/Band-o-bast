@@ -29,7 +29,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "start": "react-scripts --openssl-legacy-provider start",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider gatsby build",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider gatsby build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -52,6 +52,7 @@
     ]
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "react-router-dom": "^5.3.0"
   }
 }
