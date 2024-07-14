@@ -1,6 +1,6 @@
 var plugins = [{
       name: 'partytown',
-      plugin: require('C:/Users/Smrut/node_modules/gatsby/dist/internal-plugins/partytown/gatsby-ssr.js'),
+      plugin: require('C:/Users/Smrut/OneDrive/Documents/GitHub/Band-o-bast/node_modules/gatsby/dist/internal-plugins/partytown/gatsby-ssr.js'),
       options: {"plugins":[]},
     }]
 /* global plugins */
