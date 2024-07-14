@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.3.3",
     "firebase": "^10.11.0",
+    "gatsby": "^5.13.7",
     "gh-pages": "^6.1.1",
     "jquery": "^3.7.1",
     "jspdf": "^2.5.1",
@@ -27,10 +28,12 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "deploy": "npm run build && gh-pages -d public",
     "start": "react-scripts --openssl-legacy-provider start",
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider gatsby build",
+    "build": "gatsby build",
     "test": "react-scripts test",
+    "develop": "gatsby develop",
+    "clean": "gatsby clean",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
