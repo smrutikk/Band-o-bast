@@ -70,28 +70,37 @@ const Map = () => {
         case 'rectangle':
         case 'polygon':
         case 'polyline':
-          drawnItems.addLayer(layer);
-          setDrawnLayers([...drawnLayers, layer]);
-          const polygonGeometry = layer.toGeoJSON();
-          setBandobastDetails({ ...bandobastDetails, geometry: polygonGeometry });
-          setShowForm(true);
+          const polygonGeometry = layer.toGeoJSON().geometry;
+          if (validateCoordinates(polygonGeometry.coordinates)) {
+            drawnItems.addLayer(layer);
+            setDrawnLayers([...drawnLayers, layer]);
+            setBandobastDetails({ ...bandobastDetails, geometry: polygonGeometry });
+            setShowForm(true);
+          }
           break;
         case 'circle':
-          drawnItems.addLayer(layer);
-          setDrawnLayers([...drawnLayers, layer]);
           const circleData = {
             center: layer.getLatLng(),
             radius: layer.getRadius(),
           };
-          setBandobastDetails({ ...bandobastDetails, circle: circleData });
-          setShowForm(true);
+          if (circleData.center && circleData.radius) {
+            drawnItems.addLayer(layer);
+            setDrawnLayers([...drawnLayers, layer]);
+            setBandobastDetails({ ...bandobastDetails, circle: circleData });
+            setShowForm(true);
+          }
           break;
         case 'marker':
-          drawnItems.addLayer(layer);
-          setDrawnLayers([...drawnLayers, layer]);
-          const markerData = layer.toGeoJSON();
-          setBandobastDetails({ ...bandobastDetails, marker: markerData });
-          setShowForm(true);
+          const markerLatLng = layer.getLatLng();
+          if (markerLatLng.lat && markerLatLng.lng) {
+            drawnItems.addLayer(layer);
+            setDrawnLayers([...drawnLayers, layer]);
+            const markerData = layer.toGeoJSON();
+            setBandobastDetails({ ...bandobastDetails, marker: markerData });
+            setShowForm(true);
+          } else {
+            console.warn('Marker coordinates are undefined');
+          }
           break;
       }
     });
@@ -106,11 +115,11 @@ const Map = () => {
       if (bandobastData) {
         Object.values(bandobastData).forEach(sector => {
           const { coordinates, title, circle, personnel } = sector;
-          if (circle) {
+          if (circle && circle.center) {
             const { center, radius } = circle;
             const circleLayer = L.circle(center, { radius }).addTo(mapRef.current);
             addPopupToSector(circleLayer, title);
-          } else if (coordinates && coordinates.length > 0) {
+          } else if (coordinates && validateCoordinates(coordinates)) {
             coordinates.forEach(coord => {
               const sectorLayer = L.geoJSON({
                 type: 'Feature',
@@ -124,14 +133,18 @@ const Map = () => {
           }
           if (personnel) {
             Object.values(personnel).forEach(person => {
-              const marker = L.marker([person.latitude, person.longitude], {
-                icon: new L.Icon({
-                  iconUrl: customMarkerIcon,
-                  iconSize: [32, 32],
-                  iconAnchor: [16, 32],
-                })
-              }).addTo(mapRef.current);
-              marker.bindPopup(person.name);
+              if (person.latitude && person.longitude) {
+                const marker = L.marker([person.latitude, person.longitude], {
+                  icon: new L.Icon({
+                    iconUrl: customMarkerIcon,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32],
+                  })
+                }).addTo(mapRef.current);
+                marker.bindPopup(person.name);
+              } else {
+                console.warn('Personnel coordinates are undefined:', person);
+              }
             });
           }
         });
@@ -154,6 +167,19 @@ const Map = () => {
       map.remove();
     };
   }, []);
+
+  const validateCoordinates = (coordinates) => {
+    return (
+      Array.isArray(coordinates) &&
+      coordinates.every(
+        (point) =>
+          Array.isArray(point) &&
+          point.length >= 2 &&
+          typeof point[0] === 'number' &&
+          typeof point[1] === 'number'
+      )
+    );
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -214,59 +240,9 @@ const Map = () => {
     }));
   };
 
-  const handleCloseForm =() => {
+  const handleCloseForm = () => {
     setShowForm(false);
   };
-
-  useEffect(() => {
-    const updatePersonnelLocations = async () => {
-      const deviceDetailsRef = ref(db, 'DeviceDetails/100');
-      onValue(deviceDetailsRef, async (snapshot) => {
-        const { latitude, longitude } = snapshot.val();
-        const personnelRef = ref(db, 'personnel/100');
-        await update(personnelRef, { latitude, longitude });
-
-        const bandobastRef = ref(db, 'bandobastDetails');
-        const snapshotBandobast = await get(bandobastRef);
-        if (snapshotBandobast.exists()) {
-          const bandobastData = snapshotBandobast.val();
-          Object.keys(bandobastData).forEach(bandobastId => {
-            const bandobast = bandobastData[bandobastId];
-            if (bandobast.personnel && bandobast.personnel['100']) {
-              bandobast.personnel['100'] = { latitude, longitude };
-              update(ref(db, `bandobastDetails/${bandobastId}`), { personnel: bandobast.personnel });
-            }
-          });
-        }
-      });
-    };
-
-    updatePersonnelLocations();
-  }, []);
-
-  useEffect(() => {
-    bandobastDetails.personnel.forEach(personnelId => {
-      const deviceDetailsRef = ref(db, `DeviceDetails/${personnelId}`);
-      onValue(deviceDetailsRef, async (snapshot) => {
-        const { latitude, longitude } = snapshot.val();
-        const personnelRef = ref(db, `personnel/${personnelId}`);
-        await update(personnelRef, { latitude, longitude });
-
-        const bandobastRef = ref(db, 'bandobastDetails');
-        const snapshotBandobast = await get(bandobastRef);
-        if (snapshotBandobast.exists()) {
-          const bandobastData = snapshotBandobast.val();
-          Object.keys(bandobastData).forEach(bandobastId => {
-            const bandobast = bandobastData[bandobastId];
-            if (bandobast.personnel && bandobast.personnel[personnelId]) {
-              bandobast.personnel[personnelId] = { latitude, longitude };
-              update(ref(db, `bandobastDetails/${bandobastId}`), { personnel: bandobast.personnel });
-            }
-          });
-        }
-      });
-    });
-  }, [bandobastDetails.personnel]);
 
   return (
     <div>
@@ -274,16 +250,16 @@ const Map = () => {
       {showForm && (
         <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%, -20%)', backgroundColor: 'white', padding: '20px', border: '1px solid #ccc', borderRadius: '5px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)', zIndex: 1000 }}>
           <button style={{ position: 'absolute', top: '5px', right: '5px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '1.2em' }} onClick={handleCloseForm}>×</button>
-          <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Create Bandobast</h2>
-          <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
+          <h2>Bandobast Details</h2>
+          <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Title of the Bandobast:</label>
-              <input type="text" name="title" value={bandobastDetails.title} onChange={(e) => setBandobastDetails({ ...bandobastDetails, title: e.target.value })} style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
+              <label>Title:</label>
+              <input type="text" name="title" value={bandobastDetails.title} onChange={(e) => setBandobastDetails({ ...bandobastDetails, title: e.target.value })} required style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
             </div>
             <div className="form-group">
-              <label>Select the Ground Personnel:</label>
-              <select name="personnel" multiple value={bandobastDetails.personnel} onChange={handleSelectPersonnel} style={{ width: '100%', height: '100px', padding: '8px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }}>
-                {personnelOptions.map(option => (
+              <label>Personnel:</label>
+              <select multiple name="personnel" value={bandobastDetails.personnel} onChange={handleSelectPersonnel} style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }}>
+                {personnelOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
@@ -300,7 +276,7 @@ const Map = () => {
               <label>End Time:</label>
               <input type="time" name="endTime" value={bandobastDetails.endTime} onChange={(e) => setBandobastDetails({ ...bandobastDetails, endTime: e.target.value })} style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' }} />
             </div>
-            <button type="submit" style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#4CAF50', color: 'white', cursor: 'pointer' }}>Save</button>
+            <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Save Bandobast</button>
           </form>
         </div>
       )}
