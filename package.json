@@ -29,7 +29,7 @@
     "predeploy": "npm run build",
     "deploy": "npm run build && gh-pages -d public",
     "start": "react-scripts --openssl-legacy-provider start",
-    "build": "gatsby build",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "develop": "gatsby develop",
     "clean": "gatsby clean",
