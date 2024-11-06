@@ -2,7 +2,6 @@
   "name": "my-react-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://smrutikk.github.io/Band-o-bast",
   "dependencies": {
     "@mapbox/leaflet-pip": "^1.1.0",
     "@testing-library/jest-dom": "^5.17.0",
