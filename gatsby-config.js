@@ -3,6 +3,7 @@ module.exports = {
       title: 'BandoBast',
       description: 'Description of your site',
     },
+    pathPrefix: `/Band-o-bast`,
     plugins: [],
   };
   
